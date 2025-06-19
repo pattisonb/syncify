@@ -2,6 +2,8 @@ import React from 'react';
 import { formatTime } from '../utils/formatTime';
 
 const TrackInfo = ({ track, elapsed }) => {
+  console.log("resr")
+  console.log(track)
   if (!track) return null;
 
   return (

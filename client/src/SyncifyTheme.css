@@ -1,0 +1,303 @@
+/**
+ * SyncifyTheme.css
+ * Modern blend of Apple Music and Spotify UI
+ * Mobile-first, glassmorphic, bold accents
+ */
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'SF Pro Display', 'Roboto', Arial, sans-serif;
+  background: linear-gradient(135deg, #181818 0%, #2e003e 100%);
+  min-height: 100vh;
+  height: 100vh;
+  color: #fff;
+}
+
+.syncify-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 8px 48px 8px;
+  background: rgba(30, 30, 40, 0.7);
+  border-radius: 32px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  margin-top: 32px;
+}
+
+.syncify-header {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, #1db954 0%, #fc466b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.syncify-btn {
+  background: linear-gradient(90deg, #1db954 0%, #fc466b 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 12px 0;
+  cursor: pointer;
+  box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.18);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.syncify-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 6px 0 rgba(31, 38, 135, 0.12);
+}
+
+.syncify-btn--inline {
+  display: inline-block;
+  width: auto;
+  min-width: 0;
+  margin: 12px 0 8px 0;
+}
+
+.syncify-btn--danger {
+  background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
+  color: #fff;
+  border: none;
+}
+.syncify-btn--danger:hover, .syncify-btn--danger:focus {
+  background: linear-gradient(90deg, #ff4b2b 0%, #ff416c 100%);
+  box-shadow: 0 0 0 2px #ff4b2b55, 0 2px 12px 0 #ff4b2b33;
+  color: #fff;
+}
+
+.syncify-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 20px 16px;
+  margin: 18px 0;
+  box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.syncify-track-art {
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.18);
+  margin-bottom: 16px;
+}
+
+.syncify-track-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.syncify-track-artist {
+  font-size: 1rem;
+  color: #e0e0e0;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.syncify-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+  margin: 10px 0 0 0;
+  overflow: hidden;
+}
+.syncify-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #1db954 0%, #fc466b 100%);
+  border-radius: 6px;
+}
+
+.syncify-controls {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 16px;
+}
+.syncify-control-btn {
+  background: linear-gradient(90deg, #232526 0%, #414345 100%);
+  border: 1.5px solid rgba(255,255,255,0.13);
+  border-radius: 999px;
+  min-width: 90px;
+  height: 42px;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.10);
+  transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+  padding: 0 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+}
+.syncify-control-btn:active {
+  background: linear-gradient(90deg, #232526 0%, #232526 100%);
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px 0 rgba(31, 38, 135, 0.10);
+}
+.syncify-control-btn:hover, .syncify-control-btn:focus {
+  box-shadow: 0 0 0 2px #1db95455, 0 2px 12px 0 #1db95433;
+  background: linear-gradient(90deg, #232526 0%, #1db954 100%);
+  color: #fff;
+}
+
+.syncify-control-btn--primary {
+  background: linear-gradient(90deg, #1db954 0%, #fc466b 100%);
+  color: #fff;
+  border: none;
+}
+.syncify-control-btn--secondary {
+  background: linear-gradient(90deg, #fc466b 0%, #1db954 100%);
+  color: #fff;
+  border: none;
+}
+.syncify-control-btn--icon {
+  padding: 0 14px;
+  min-width: 42px;
+  height: 42px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .syncify-container {
+    max-width: 100vw;
+    margin: 0;
+    border-radius: 0;
+    padding: 12px 2vw 32px 2vw;
+  }
+  .syncify-header {
+    font-size: 1.5rem;
+  }
+  .syncify-card {
+    padding: 12px 6px;
+  }
+  .syncify-track-art {
+    width: 80px;
+    height: 80px;
+  }
+  .syncify-btn {
+    padding: 12px 18px;
+    font-size: 1rem;
+  }
+  .syncify-controls {
+    gap: 10px;
+  }
+  .syncify-control-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+}
+
+.syncify-main-layout {
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .syncify-main-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    height: 100%;
+  }
+  .syncify-main-left, .syncify-main-right {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .syncify-main-left {
+    max-width: 420px;
+  }
+  .syncify-main-right {
+    max-width: 420px;
+  }
+}
+
+.syncify-card--left {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.syncify-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 16px;
+  justify-content: flex-start;
+}
+
+.syncify-btn-subtext {
+  font-size: 0.92rem;
+  color: #bbb;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.syncify-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 180px;
+  background: #232526;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 7px 12px;
+  position: absolute;
+  z-index: 10;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  font-weight: 400;
+  box-shadow: 0 2px 12px 0 rgba(31,38,135,0.18);
+  transition: opacity 0.18s;
+  pointer-events: none;
+}
+.syncify-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: #232526 transparent transparent transparent;
+}
+.syncify-tooltip-parent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.syncify-tooltip-parent:hover .syncify-tooltip,
+.syncify-tooltip-parent:focus-within .syncify-tooltip {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+} 

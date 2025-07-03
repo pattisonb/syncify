@@ -2,16 +2,23 @@ import React from 'react';
 import { formatTime } from '../utils/formatTime';
 
 const TrackInfo = ({ track, elapsed }) => {
-  console.log("resr")
-  console.log(track)
   if (!track) return null;
+  const progress = track.duration ? Math.min(elapsed / track.duration, 1) : 0;
+  // Support both 'artist' (string) and 'artists' (array)
+  const artist = track.artist || (Array.isArray(track.artists) ? track.artists.join(', ') : track.artists);
 
   return (
-    <div style={{ marginTop: 30 }}>
-      <img src={track.image} alt="Album art" width={300} />
-      <h2>{track.name}</h2>
-      <h3>{track.artist}</h3>
-      <p>{track.album}</p>
+    <div className="syncify-card">
+      <img className="syncify-track-art" src={track.image} alt="Album art" />
+      <div className="syncify-track-title">{track.name}</div>
+      <div style={{ color: '#aaa', fontSize: '0.95rem', fontWeight: 400, marginBottom: 8 }}>{artist}</div>
+      <div className="syncify-progress-bar">
+        <div className="syncify-progress" style={{ width: `${progress * 100}%` }}></div>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '0.9rem', color: '#ccc', marginTop: 4 }}>
+        <span>{formatTime(elapsed)}</span>
+        <span>{formatTime(track.duration)}</span>
+      </div>
     </div>
   );
 };

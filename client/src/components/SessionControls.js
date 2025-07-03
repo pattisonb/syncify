@@ -53,7 +53,8 @@ useEffect(() => {
         artists: t.artists.map(a => a.name),
         album: t.album.name,
         uri: t.uri,
-        duration: t.duration_ms
+        duration: t.duration_ms,
+        image: t.album.images && t.album.images[0] ? t.album.images[0].url : undefined
       })) || [];
 
       await updateDoc(sessionRef, {
@@ -110,7 +111,8 @@ useEffect(() => {
         artists: track.artists.map(a => a.name),
         album: track.album.name,
         uri: track.uri,
-        duration: track.duration_ms
+        duration: track.duration_ms,
+        image: track.album.images && track.album.images[0] ? track.album.images[0].url : undefined
       })) || [];
 
       await setDoc(doc(db, 'sessions', sessionCode), {
@@ -199,25 +201,25 @@ const handleSyncPlayback = async (syncQueue = true) => {
 };
 
   return (
-    <div style={{ marginTop: 20 }}>
+    <div className="syncify-card">
       {!sessionCode ? (
         <>
-          <button onClick={handleStartSession} style={{ marginRight: 10 }}>
+          <button onClick={handleStartSession} className="syncify-btn">
             Start Session
           </button>
                 {!joining ? (
-        <button onClick={() => setJoining(true)}>Join Session</button>
+        <button onClick={() => setJoining(true)} className="syncify-btn">Join Session</button>
         ) : (
-        <div style={{ marginTop: 10 }}>
+        <div className="syncify-controls">
             <input
             type="text"
             value={joinCodeInput}
             onChange={(e) => setJoinCodeInput(e.target.value)}
             placeholder="Enter session code"
-            style={{ marginRight: 10 }}
+            style={{ borderRadius: 12, padding: 10, fontSize: '1rem', border: 'none', margin: '8px 0', width: '100%' }}
             />
-            <button onClick={handleJoinSession}>Confirm</button>
-            <button onClick={() => setJoining(false)} style={{ marginLeft: 5 }}>
+            <button onClick={handleJoinSession} className="syncify-control-btn">Confirm</button>
+            <button onClick={() => setJoining(false)} className="syncify-control-btn">
             Cancel
             </button>
         </div>
@@ -228,25 +230,30 @@ const handleSyncPlayback = async (syncQueue = true) => {
           <h2>Current Session</h2>
           <h4>Session ID: {sessionCode}</h4>
           <p>Hosted by: <strong>{hostName}</strong></p>
-          <button onClick={handleLeaveSession} style={{ marginRight: 10 }}>
-            Leave Session
-          </button>
-{hostId === spotifyUser?.id ? (
-  <button onClick={handleEndSession} style={{ marginRight: 10, color: 'red' }}>
-    End Session
-  </button>
-) : (
-    <div>
-<button onClick={() => handleSyncPlayback(false)} style={{ marginRight: 10 }}>
-  Sync Playback
-</button>
-
-    <button onClick={handleSyncPlayback} style={{ marginRight: 10 }}>
-    Sync Playback and Queue
-  </button>
-  </div>
-)}
-          <button>Invite Users</button>
+          {hostId === spotifyUser?.id ? (
+            <button onClick={handleEndSession} className="syncify-btn syncify-btn--danger">
+              End Session
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+              <div className="syncify-controls-row" style={{ justifyContent: 'center', width: '100%' }}>
+                <div className="syncify-tooltip-parent">
+                  <button className="syncify-control-btn syncify-control-btn--primary" title="Jump to the host's current song">Instant Sync</button>
+                  <div className="syncify-tooltip">Jump to the host's current song</div>
+                </div>
+                <div className="syncify-tooltip-parent">
+                  <button className="syncify-control-btn syncify-control-btn--secondary" title="Match host's song and queue">Full Sync</button>
+                  <div className="syncify-tooltip">Match host's song and queue</div>
+                </div>
+                <div className="syncify-tooltip-parent">
+                  <button className="syncify-control-btn syncify-control-btn--icon" title="Share your session code">Invite</button>
+                </div>
+              </div>
+              <button onClick={handleLeaveSession} className="syncify-btn syncify-btn--inline syncify-btn--danger" style={{ marginTop: 18, fontSize: '0.98rem', padding: '10px 28px' }}>
+                Leave
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -3,8 +3,10 @@ import { getSpotifyUserProfile } from './api/spotify';
 import { usePlayback } from './hooks/usePlayback';
 import TrackInfo from './components/TrackInfo';
 import SessionControls from './components/SessionControls';
+import UpcomingTracks from './components/UpcomingTracks';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import './SyncifyTheme.css';
 // import { loginToAppleMusic } from './hooks/useAppleMusic';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -18,6 +20,7 @@ function App() {
   const [remoteTrack, setRemoteTrack] = useState(null);
   const [remoteElapsed, setRemoteElapsed] = useState(0);
   const [sessionCode, setSessionCode] = useState(null);
+  const [remoteQueue, setRemoteQueue] = useState([]);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -75,9 +78,11 @@ function App() {
         if (!sessionSnap.exists()) return;
 
         const currentTrack = sessionSnap.data()?.currentTrack;
+        const queue = sessionSnap.data()?.queue || [];
         if (!currentTrack) return;
 
         setRemoteTrack(currentTrack);
+        setRemoteQueue(queue);
 
         const elapsed = currentTrack.isPlaying
           ? Date.now() - currentTrack.startedAt
@@ -109,27 +114,42 @@ function App() {
   }, [accessToken]);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: 50 }}>
-      <h1>Syncify 🎵</h1>
-      {!accessToken ? (
-        <a href={`${API_BASE_URL}/login?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`}>
-          <button>Login with Spotify</button>
-        </a>
-      ) : (
-        <>
-          <button onClick={handleLogout}>Logout</button>
+    <div className="syncify-container">
+      <div style={{ textAlign: 'center' }}>
+        <div className="syncify-header">Syncify 🎵</div>
+        {!accessToken ? (
+          <a href={`${API_BASE_URL}/login?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`}>
+            <button className="syncify-btn">Login with Spotify</button>
+          </a>
+        ) : (
+          <>
+            <button className="syncify-btn syncify-btn--inline syncify-btn--danger" onClick={handleLogout}>Logout</button>
+            {spotifyUser?.name && (
+              <div style={{ fontSize: '0.95rem', color: '#bbb', marginBottom: 16 }}>
+                Logged in as <span style={{ color: '#fff', fontWeight: 600 }}>{spotifyUser.name}</span>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      {accessToken && (
+        <div className="syncify-main-layout">
           <SessionControls
             accessToken={accessToken}
             spotifyUser={spotifyUser}
             track={track}
             elapsed={elapsed}
           />
-          <h2 style={{ marginTop: 40 }}>Current Playback</h2>
+          <div className="syncify-header" style={{ fontSize: '1.3rem', marginBottom: 12 }}>Current Playback</div>
           <TrackInfo
             track={hostId === spotifyUser?.id ? track : remoteTrack}
             elapsed={hostId === spotifyUser?.id ? elapsed : remoteElapsed}
           />
-        </>
+          <UpcomingTracks
+            queue={hostId === spotifyUser?.id ? [] : remoteQueue}
+            currentTrackId={(hostId === spotifyUser?.id ? track : remoteTrack)?.id}
+          />
+        </div>
       )}
     </div>
   );

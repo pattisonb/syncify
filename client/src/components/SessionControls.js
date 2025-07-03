@@ -6,22 +6,18 @@ import { generateSessionCode } from '../utils/session';
 import { setUserQueueFromSession, syncPlaybackToTrack } from '../api/spotify';
 
 
-const SessionControls = ({ accessToken, spotifyUser, track, elapsed }) => {
-  const [sessionCode, setSessionCode] = useState(null);
+const SessionControls = ({ accessToken, spotifyUser, track, elapsed, sessionCode, setSessionCode }) => {
   const [hostId, setHostId] = useState(null);
   const [hostName, setHostName] = useState(null);
   const [joining, setJoining] = useState(false);
   const [joinCodeInput, setJoinCodeInput] = useState('');
+  const [inviteCopied, setInviteCopied] = useState(false);
   
 
   const lastTrackId = useRef(null);
 
 useEffect(() => {
-  const savedCode = localStorage.getItem('session_code');   
-  if (savedCode) {
-    setSessionCode(savedCode);
-  }
-const savedHost = localStorage.getItem('host');
+  const savedHost = localStorage.getItem('host');
   if (savedHost) {
     setHostName(savedHost);
   }
@@ -83,7 +79,7 @@ useEffect(() => {
 
 
   const handleStartSession = async () => {
-    const sessionCode = generateSessionCode();
+    const newSessionCode = generateSessionCode();
 
     try {
       const nowPlayingRes = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
@@ -115,7 +111,7 @@ useEffect(() => {
         image: track.album.images && track.album.images[0] ? track.album.images[0].url : undefined
       })) || [];
 
-      await setDoc(doc(db, 'sessions', sessionCode), {
+      await setDoc(doc(db, 'sessions', newSessionCode), {
         hostId: spotifyUser?.id,
         hostName: spotifyUser?.name,
         createdAt: serverTimestamp(),
@@ -123,10 +119,10 @@ useEffect(() => {
         currentTrack,
         queue
       });
-      localStorage.setItem('session_code', sessionCode);
+      localStorage.setItem('session_code', newSessionCode);
       localStorage.setItem('host', spotifyUser?.name);
       localStorage.setItem('host_id',  spotifyUser?.id);
-      setSessionCode(sessionCode);
+      setSessionCode(newSessionCode);
       setHostId(spotifyUser?.id);
       setHostName(spotifyUser?.name)
     } catch (err) {
@@ -135,14 +131,13 @@ useEffect(() => {
   };
 
   const handleLeaveSession = () => {
-    setSessionCode(null);
     localStorage.removeItem('session_code');
+    setSessionCode(null);
   };
 
   const handleEndSession = async () => {
     try {
       await deleteDoc(doc(db, 'sessions', sessionCode));
-      setSessionCode(null);
       localStorage.removeItem('session_code'); 
       setHostId(null);
     } catch (err) {
@@ -151,54 +146,62 @@ useEffect(() => {
   };
 
   const handleJoinSession = async () => {
-  const trimmedCode = joinCodeInput.trim();
-  if (!trimmedCode) return;
+    const trimmedCode = joinCodeInput.trim();
+    if (!trimmedCode) return;
 
-  try {
-    const sessionRef = doc(db, 'sessions', trimmedCode);
-    const sessionSnap = await getDoc(sessionRef);
+    try {
+      const sessionRef = doc(db, 'sessions', trimmedCode);
+      const sessionSnap = await getDoc(sessionRef);
 
-    if (!sessionSnap.exists()) {
-      alert('Session not found');
-      return;
+      if (!sessionSnap.exists()) {
+        alert('Session not found');
+        return;
+      }
+
+      localStorage.setItem('session_code', trimmedCode);
+      setSessionCode(trimmedCode);
+
+      const sessionData = sessionSnap.data();
+      localStorage.setItem('host', sessionData.hostName);
+      localStorage.setItem('host_id', sessionData.hostId);
+      setHostName(sessionData.hostName);
+      setHostId(sessionData.hostId)
+      console.log(sessionData)
+      setJoining(false);
+    } catch (err) {
+      console.error("Failed to join session:", err);
     }
+  };
 
-    localStorage.setItem('session_code', trimmedCode);
-    setSessionCode(trimmedCode);
+  const handleSyncPlayback = async (syncQueue = true) => {
+    try {
+      const sessionRef = doc(db, 'sessions', sessionCode);
+      const sessionSnap = await getDoc(sessionRef);
+      const sessionData = sessionSnap.data();
 
-    const sessionData = sessionSnap.data();
-    localStorage.setItem('host', sessionData.hostName);
-    localStorage.setItem('host_id', sessionData.hostId);
-    setHostName(sessionData.hostName);
-    setHostId(sessionData.hostId)
-    console.log(sessionData)
-    setJoining(false);
-  } catch (err) {
-    console.error("Failed to join session:", err);
+      const { currentTrack, queue } = sessionData;
+      if (sessionData.service === 'apple') {
+    const { syncApplePlayback } = await import('../api/apple');
+    await syncApplePlayback(currentTrack);
+  } else {
+    await syncPlaybackToTrack(currentTrack, accessToken);
+    if (syncQueue) {
+      await setUserQueueFromSession(queue, accessToken);
+    }
   }
-};
 
-const handleSyncPlayback = async (syncQueue = true) => {
-  try {
-    const sessionRef = doc(db, 'sessions', sessionCode);
-    const sessionSnap = await getDoc(sessionRef);
-    const sessionData = sessionSnap.data();
+    } catch (err) {
+      console.error('Failed to sync playback:', err);
+    }
+  };
 
-    const { currentTrack, queue } = sessionData;
-    if (sessionData.service === 'apple') {
-  const { syncApplePlayback } = await import('../api/apple');
-  await syncApplePlayback(currentTrack);
-} else {
-  await syncPlaybackToTrack(currentTrack, accessToken);
-  if (syncQueue) {
-    await setUserQueueFromSession(queue, accessToken);
-  }
-}
-
-  } catch (err) {
-    console.error('Failed to sync playback:', err);
-  }
-};
+  const handleInvite = () => {
+    if (!sessionCode) return;
+    const url = `${window.location.origin}/?invite=${sessionCode}`;
+    navigator.clipboard.writeText(url);
+    setInviteCopied(true);
+    setTimeout(() => setInviteCopied(false), 1800);
+  };
 
   return (
     <div className="syncify-card">
@@ -231,9 +234,17 @@ const handleSyncPlayback = async (syncQueue = true) => {
           <h4>Session ID: {sessionCode}</h4>
           <p>Hosted by: <strong>{hostName}</strong></p>
           {hostId === spotifyUser?.id ? (
+            <div>
             <button onClick={handleEndSession} className="syncify-btn syncify-btn--danger">
               End Session
             </button>
+            <div className="syncify-tooltip-parent">
+                    <button className="syncify-control-btn syncify-control-btn--icon" title="Copy invite link" onClick={handleInvite}>Invite</button>
+                    {inviteCopied && (
+                      <div className="syncify-tooltip" style={{ opacity: 1, visibility: 'visible', pointerEvents: 'auto' }}>Invite link copied!</div>
+                    )}
+                  </div>
+            </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
               <div className="syncify-controls-row" style={{ justifyContent: 'center', width: '100%' }}>
@@ -245,9 +256,14 @@ const handleSyncPlayback = async (syncQueue = true) => {
                   <button className="syncify-control-btn syncify-control-btn--secondary" title="Match host's song and queue" onClick={handleSyncPlayback}>Full Sync</button>
                   <div className="syncify-tooltip">Match host's song and queue</div>
                 </div>
-                <div className="syncify-tooltip-parent">
-                  <button className="syncify-control-btn syncify-control-btn--icon" title="Share your session code">Invite</button>
-                </div>
+                {sessionCode && (
+                  <div className="syncify-tooltip-parent">
+                    <button className="syncify-control-btn syncify-control-btn--icon" title="Copy invite link" onClick={handleInvite}>Invite</button>
+                    {inviteCopied && (
+                      <div className="syncify-tooltip" style={{ opacity: 1, visibility: 'visible', pointerEvents: 'auto' }}>Invite link copied!</div>
+                    )}
+                  </div>
+                )}
               </div>
               <button onClick={handleLeaveSession} className="syncify-btn syncify-btn--inline syncify-btn--danger" style={{ marginTop: 18, fontSize: '0.98rem', padding: '10px 28px' }}>
                 Leave

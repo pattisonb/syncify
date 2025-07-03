@@ -12,8 +12,8 @@ const UpcomingTracks = ({ queue, currentTrackId }) => {
         Upcoming Songs
       </div>
       {upcoming.map((track, idx) => (
-        <div key={track.id} style={{ marginBottom: 12, display: 'flex', alignItems: 'flex-start' }}>
-          <span style={{ marginRight: 12, fontSize: '1.3em', lineHeight: 1.2 }}>🎵</span>
+        <div key={track.id} style={{ marginBottom: 12, display: 'flex', alignItems: 'center' }}>
+          <span style={{ marginRight: 12, fontSize: '1.3em', lineHeight: 1, display: 'flex', alignItems: 'center' }}>🎵</span>
           <div>
             <div style={{ color: '#fff', fontSize: '1rem', fontWeight: 500 }}>{track.name}</div>
             <div style={{ color: '#bbb', fontWeight: 400, fontSize: '0.97rem' }}>{Array.isArray(track.artists) ? track.artists.join(', ') : track.artists}</div>

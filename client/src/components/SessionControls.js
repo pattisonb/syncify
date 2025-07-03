@@ -238,11 +238,11 @@ const handleSyncPlayback = async (syncQueue = true) => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
               <div className="syncify-controls-row" style={{ justifyContent: 'center', width: '100%' }}>
                 <div className="syncify-tooltip-parent">
-                  <button className="syncify-control-btn syncify-control-btn--primary" title="Jump to the host's current song">Instant Sync</button>
+                  <button className="syncify-control-btn syncify-control-btn--primary" title="Jump to the host's current song" onClick={() => handleSyncPlayback(false)}>Instant Sync</button>
                   <div className="syncify-tooltip">Jump to the host's current song</div>
                 </div>
                 <div className="syncify-tooltip-parent">
-                  <button className="syncify-control-btn syncify-control-btn--secondary" title="Match host's song and queue">Full Sync</button>
+                  <button className="syncify-control-btn syncify-control-btn--secondary" title="Match host's song and queue" onClick={handleSyncPlayback}>Full Sync</button>
                   <div className="syncify-tooltip">Match host's song and queue</div>
                 </div>
                 <div className="syncify-tooltip-parent">

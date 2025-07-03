@@ -34,6 +34,7 @@ function App() {
     const refreshTokenFromUrl = params.get('refresh_token');
     const storedSession = localStorage.getItem('session_code');
     const storedHostId = localStorage.getItem('host_id');
+    const inviteCode = params.get('invite');
     if (storedSession) setSessionCode(storedSession);
     if (storedHostId) setHostId(storedHostId);
 
@@ -45,12 +46,26 @@ function App() {
 
       window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
       setAccessToken(tokenFromUrl);
+      if (inviteCode) {
+        setSessionCode(inviteCode);
+        localStorage.setItem('session_code', inviteCode);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('invite');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
     } else {
       const stored = localStorage.getItem('access_token');
       const storedRefresh = localStorage.getItem('refresh_token');
 
       if (stored) {
         setAccessToken(stored);
+        if (inviteCode) {
+          setSessionCode(inviteCode);
+          localStorage.setItem('session_code', inviteCode);
+          const url = new URL(window.location.href);
+          url.searchParams.delete('invite');
+          window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
       } else if (storedRefresh) {
         fetch(`${API_BASE_URL}/refresh?refresh_token=${storedRefresh}`)
           .then(res => res.json())
@@ -58,6 +73,13 @@ function App() {
             if (data.access_token) {
               localStorage.setItem('access_token', data.access_token);
               setAccessToken(data.access_token);
+              if (inviteCode) {
+                setSessionCode(inviteCode);
+                localStorage.setItem('session_code', inviteCode);
+                const url = new URL(window.location.href);
+                url.searchParams.delete('invite');
+                window.history.replaceState({}, document.title, url.pathname + url.search);
+              }
             }
           })
           .catch(err => {
@@ -139,6 +161,8 @@ function App() {
             spotifyUser={spotifyUser}
             track={track}
             elapsed={elapsed}
+            sessionCode={sessionCode}
+            setSessionCode={setSessionCode}
           />
           <div className="syncify-header" style={{ fontSize: '1.3rem', marginBottom: 12 }}>Current Playback</div>
           <TrackInfo

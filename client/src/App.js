@@ -7,6 +7,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 // import { loginToAppleMusic } from './hooks/useAppleMusic';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
+
 function App() {
   const [accessToken, setAccessToken] = useState(null);
   const [spotifyUser, setSpotifyUser] = useState(null);
@@ -46,7 +49,7 @@ function App() {
       if (stored) {
         setAccessToken(stored);
       } else if (storedRefresh) {
-        fetch(`https://syncify-75tp.onrender.com/refresh?refresh_token=${storedRefresh}`)
+        fetch(`${API_BASE_URL}/refresh?refresh_token=${storedRefresh}`)
           .then(res => res.json())
           .then(data => {
             if (data.access_token) {
@@ -109,7 +112,7 @@ function App() {
     <div style={{ textAlign: 'center', marginTop: 50 }}>
       <h1>Syncify 🎵</h1>
       {!accessToken ? (
-        <a href="https://syncify-75tp.onrender.com/login">
+        <a href={`${API_BASE_URL}/login?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`}>
           <button>Login with Spotify</button>
         </a>
       ) : (
